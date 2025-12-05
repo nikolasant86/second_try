@@ -1,0 +1,105 @@
+
+services:
+  nginx:
+    image: ubuntu/nginx:latest
+    container_name: nginx
+    ports:
+      - 8080:8080
+    networks:
+      - logging-network
+    volumes:
+      - /etc/nginx:/etc/nginx
+      - /var/log/nginx:/var/log/nginx
+      - /home/nikolas/education/lesson1/html:/usr/share/nginx/html:ro
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: '1G'
+        reservations:
+          cpus: '1'
+          memory: '512M'
+
+  fluent-bit:
+    image: fluent/fluent-bit:4.1.0
+    container_name: fluent
+    networks:
+      - logging-network
+    volumes:
+      - /etc/fluent-bit:/fluent-bit/etc
+      - /var/log/nginx:/var/log/nginx
+    depends_on:
+      - nginx
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: '1G'
+        reservations:
+          cpus: '1'
+          memory: '128M'
+
+  logstash:
+    image: logstash:8.18.8
+    container_name: logstash
+    ports:
+      - 5044:5044
+    networks:
+      - logging-network
+    volumes:
+      - /etc/logstash:/usr/share/logstash
+    depends_on:
+      - fluent-bit
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: '6G'
+        reservations:
+          cpus: '1'
+          memory: '2G'
+
+  elasticsearch:
+    image: elasticsearch:8.18.8
+    container_name: elastic
+    ports:
+      - 9200:9200
+      - 9300:9300
+    networks:
+      - logging-network
+    volumes:
+      - /etc/elasticsearch/config:/usr/share/elasticsearch/config
+    depends_on:
+      - logstash
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: '6G'
+        reservations:
+          cpus: '1'
+          memory: '2G'
+
+  kibana:
+    image: kibana:8.18.8
+    container_name: kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elastic:9200
+    ports:
+      - 5601:5601
+    networks:
+      - logging-network
+    depends_on:
+      - elasticsearch
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: '6G'
+        reservations:
+          cpus: '1'
+          memory: '2G'
+
+networks:
+  logging-network:
+    driver: bridge

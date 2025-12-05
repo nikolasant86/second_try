@@ -1,0 +1,7 @@
+1. скачиваю с docker hub образ nginx командой
+docker run -d --name nginx ubuntu/nginx:latest
+2. копирую директорию с файлами настройки на хостовую машину
+sudo docker cp nginx:/etc/nginx /etc/nginx
+3. монтирую директорию с настройками, директорию с файлами сайта, директорию с логами и пробрасываю порт 8080
+docker run -d --name nginx -v /etc/nginx:/etc/nginx -v /var/log/nginx:/var/log/nginx -v /home/nikolas/education/lesson1/html:/usr/share/nginx/html:ro -p 8080:8080 ubuntu/nginx:latest
+4. 
