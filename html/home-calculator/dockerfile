@@ -1,0 +1,16 @@
+# Используем официальный образ Python в качестве базового
+FROM python:3.14-alpine
+
+# Устанавливаем рабочую папку внутри контейнера
+WORKDIR /app
+
+# Копируем файлы проекта в контейнер
+COPY requirements.txt ./
+COPY calculator.py ./
+COPY home-calculator.html ./templates/
+
+# Устанавливаем зависимости
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Указываем команду для запуска приложения
+CMD ["python", "calculator.py"]
