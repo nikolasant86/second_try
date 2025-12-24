@@ -58,3 +58,21 @@ body {
     margin-top: 15px;
     font-weight: bold;
   }
+  /* Навигационная панель */
+  nav {
+    background-color: #333;
+    padding: 10px;
+    display: flex;
+  }
+
+  nav a {
+    color: white;
+    padding: 8px 16px;
+    text-decoration: none;
+    margin-right: 10px;
+    border-radius: 4px;
+  }
+
+  nav a:hover {
+    background-color: #575757;
+  }
