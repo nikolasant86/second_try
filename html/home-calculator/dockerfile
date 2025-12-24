@@ -13,4 +13,4 @@ COPY home-calculator.html ./templates/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Указываем команду для запуска приложения
-CMD ["python", "calculator.py"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "calculator.py"]

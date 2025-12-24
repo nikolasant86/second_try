@@ -1,5 +1,16 @@
 
 services:
+  calculator:
+    image: docker.io/library/calculator:1.3
+    container_name: calculator
+    networks:
+      - logging-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '128M'
+
   nginx:
     image: ubuntu/nginx:latest
     container_name: nginx
