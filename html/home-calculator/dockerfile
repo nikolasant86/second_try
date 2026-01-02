@@ -1,19 +1,35 @@
 # Используем официальный образ Python в качестве базового
-FROM python:3.14-alpine
+#FROM python:3.14-alpine
 
 # Устанавливаем рабочую папку внутри контейнера
-WORKDIR /app
+#WORKDIR /app
 
 # Копируем файлы проекта в контейнер
-COPY requirements.txt ./
-COPY calculator.py ./
-COPY home-calculator.html ./templates/
-COPY scripts.js ./static/ 
-COPY styles.css ./static/
+#COPY requirements.txt ./
+#COPY calculator.py ./
+#COPY home-calculator.html ./templates/
+#COPY scripts.js ./static/ 
+#COPY styles.css ./static/
 
 # Устанавливаем зависимости
-RUN pip install --no-cache-dir -r requirements.txt
+#RUN pip install --no-cache-dir -r requirements.txt
 
 # Указываем команду для запуска приложения
 # CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "calculator.py"]
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "calculator:app"]
+#CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "calculator:app"]
+
+FROM python:3.14-alpine
+
+WORKDIR /app
+
+# Устанавливаем необходимые библиотеки
+RUN pip install --no-cache-dir cerberus
+
+# Копируем файлы
+COPY calculator.py .
+
+# Открываем порт
+EXPOSE 5000
+
+# Команда запуска
+CMD ["python", "calculator.py"]

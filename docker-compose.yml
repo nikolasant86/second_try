@@ -1,7 +1,7 @@
 
 services:
   calculator:
-    image: nikolavasant/calculator:1.4
+    image: nikolavasant/calculator:1.7
     container_name: calculator
     ports:
       - 5000:5000
