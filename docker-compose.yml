@@ -1,24 +1,47 @@
 
 services:
+  gallery:
+    image: nikolavasant/gallery:1.9
+    container_name: gallery
+    ports:
+      - 8000:8000
+    networks:
+      - logging-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '128M'
+
+  calculator:
+    image: nikolavasant/calculator:1.7
+    container_name: calculator
+    ports:
+      - 5000:5000
+    networks:
+      - logging-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '128M'
+
   nginx:
     image: ubuntu/nginx:latest
     container_name: nginx
     ports:
-      - 8080:8080
+      - 80:80
     networks:
       - logging-network
     volumes:
       - /etc/nginx:/etc/nginx
       - /var/log/nginx:/var/log/nginx
-      - /home/nikolas/education/lesson1/html:/usr/share/nginx/html:ro
+      - /home/nikolas/education/my_home_project/second_try/html/home-calculator:/usr/share/nginx/html:ro
     deploy:
       resources:
         limits:
-          cpus: '2'
-          memory: '1G'
-        reservations:
           cpus: '1'
-          memory: '512M'
+          memory: '256M'
 
   fluent-bit:
     image: fluent/fluent-bit:4.1.0
@@ -33,11 +56,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
-          memory: '1G'
-        reservations:
           cpus: '1'
-          memory: '128M'
+          memory: '256M'
 
   logstash:
     image: logstash:8.18.8
@@ -53,11 +73,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
-          memory: '6G'
-        reservations:
           cpus: '1'
-          memory: '2G'
+          memory: '512M'
 
   elasticsearch:
     image: elasticsearch:8.18.8
@@ -74,11 +91,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
-          memory: '6G'
-        reservations:
           cpus: '1'
-          memory: '2G'
+          memory: '512M'
 
   kibana:
     image: kibana:8.18.8
@@ -94,11 +108,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
-          memory: '6G'
-        reservations:
           cpus: '1'
-          memory: '2G'
+          memory: '512M'
 
 networks:
   logging-network:
