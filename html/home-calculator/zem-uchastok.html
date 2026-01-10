@@ -93,12 +93,12 @@ document.onkeydown = (e) => {
   }
 };
 
-fetch('http://localhost:8000/api/images')
-  .then(res => res.json())
-  .then(data => {
+//fetch('http://localhost:8000/api/images')
+//  .then(res => res.json())
+//  .then(data => {
     // data.images — массив имён файлов
     // Можно динамически сформировать галерею
-  });
+//  });
 
 function fetchImage(index) {
   fetch(`http://localhost:8000/api/image/${index}`, { method: 'GET' })
