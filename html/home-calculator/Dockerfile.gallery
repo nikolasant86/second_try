@@ -1,0 +1,7 @@
+FROM python:3.14-alpine
+WORKDIR /app
+COPY gallery.py .
+COPY images/ ./images
+RUN pip install cerberus
+EXPOSE 8000
+CMD ["python", "gallery.py"]

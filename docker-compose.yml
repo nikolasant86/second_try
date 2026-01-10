@@ -1,5 +1,18 @@
 
 services:
+  gallery:
+    image: nikolavasant/gallery:1.9
+    container_name: gallery
+    ports:
+      - 8000:8000
+    networks:
+      - logging-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '128M'
+
   calculator:
     image: nikolavasant/calculator:1.7
     container_name: calculator

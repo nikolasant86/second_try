@@ -38,7 +38,87 @@
 </div>
 
 <!-- Скрипт (можете подключить отдельно в scripts.js) -->
+<!--
 <script src="scripts.js"></script>
+-->
+
+<script>
+const images = [
+  "images/01.jpg",
+  "images/02.jpg",
+  "images/03.jpg",
+  "images/04.jpg",
+  "images/05.jpg",
+  "images/06.jpg",
+  "images/07.jpg",
+  "images/08.jpg",
+  "images/09.jpg",
+  "images/10.jpg"
+];
+
+let currentIndex = 0;
+
+const modal = document.getElementById("myModal");
+const modalImg = document.getElementById("fullImage");
+const closeBtn = document.getElementsByClassName("close")[0];
+
+document.querySelectorAll('.gallery img').forEach((img, index) => {
+  img.onclick = () => {
+    currentIndex = index;
+    fetchImage(currentIndex);
+    modal.style.display = "block";
+  };
+});
+
+closeBtn.onclick = () => {
+  modal.style.display = "none";
+};
+
+window.onclick = (event) => {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+};
+
+// Клавиши для перелистывания
+document.onkeydown = (e) => {
+  if (modal.style.display === "block") {
+    if (e.key === "ArrowRight") {
+      currentIndex = (currentIndex + 1) % images.length;
+      fetchImage(currentIndex);
+    } else if (e.key === "ArrowLeft") {
+      currentIndex = (currentIndex - 1 + images.length) % images.length;
+      fetchImage(currentIndex);
+    }
+  }
+};
+
+fetch('http://localhost:8000/api/images')
+  .then(res => res.json())
+  .then(data => {
+    // data.images — массив имён файлов
+    // Можно динамически сформировать галерею
+  });
+
+function fetchImage(index) {
+  fetch(`http://localhost:8000/api/image/${index}`, { method: 'GET' })
+    .then(res => {
+      if (res.ok) return res.blob();
+      throw new Error(`Ошибка загрузки изображения: ${res.status}`);
+    })
+    .then(blob => {
+      const url = URL.createObjectURL(blob);
+      console.log('Создан URL:', url);
+      modalImg.src = url;
+      console.log('Установлено src:', modalImg.src);
+    })
+    .catch(error => {
+      alert(error.message);
+      modal.style.display = "none";
+    });
+}
+
+</script>
 
 </body>
 </html>

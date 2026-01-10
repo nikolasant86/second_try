@@ -91,7 +91,7 @@ body {
 
   /* Стиль для модального окна */
   .modal {
-    display: none; /* по умолчанию скрыто */
+    display: outside; /* по умолчанию скрыто */
     position: fixed;
     z-index: 999; /* поверх всего */
     padding-top: 60px;
@@ -103,13 +103,13 @@ body {
     background-color: rgba(0,0,0,0.8);
   }
 
-  .modal-content {
-    margin: auto;
-    display: block;
-    max-width: 90%;
-    max-height: 80%;
+    .modal-content {
+  max-width: none;
+  max-height: none;
+  width: auto;
+  height: auto;
   }
-
+  
   .close {
     position: absolute;
     top: 20px;
