@@ -1,0 +1,17 @@
+FROM python:3.14-alpine
+
+WORKDIR /app
+
+# Установка зависимостей
+RUN pip install --no-cache-dir httpx dadata
+
+# Устанавливаем необходимые библиотеки
+RUN pip install --no-cache-dir requests
+
+RUN pip install aiohttp
+
+COPY geoservice.py .
+
+EXPOSE 7999
+
+CMD ["python", "geoservice.py"]

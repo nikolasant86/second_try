@@ -14,7 +14,6 @@
   <a href="zem-uchastok.html">Земельный участок</a>
   </nav>
 
-
 <h1>Проект моего дома</h1>
 
 <div class="container">
@@ -31,9 +30,49 @@
   </div>
 </div>
 
-<!--
-<script src="scripts.js"></script>
--->
+<!-- Кнопка -->
+<button id="weatherBtn">Погода сейчас</button>
+<div id="loadingIndicator" style="display: none;">Загрузка...</div>
+<div id="weatherResult"></div>
+
+<script>
+document.getElementById('weatherBtn').addEventListener('click', function() {
+  // Показать индикатор загрузки
+  document.getElementById('loadingIndicator').style.display = 'inline';
+
+  fetch('http://localhost:8001/')
+    .then(response => response.json())
+    .then(data => {
+      if (data && data.city) {
+        fetch(`http://localhost:8001/api/weather?city=${data.city}`)
+          .then(response => response.json())
+          .then(weatherData => {
+            if (weatherData && weatherData.weather) {
+              document.getElementById('weatherResult').innerText = 
+                `Погода в ${data.city}: ${weatherData.weather.description}, Температура: ${weatherData.weather.temp}°C`;
+            } else {
+              document.getElementById('weatherResult').innerText = 'Погода не определена.';
+            }
+            // Скрыть индикатор загрузки
+            document.getElementById('loadingIndicator').style.display = 'none';
+          })
+          .catch(error => {
+            document.getElementById('weatherResult').innerText = 'Ошибка получения данных о погоде.';
+            console.error(error);
+            document.getElementById('loadingIndicator').style.display = 'none';
+          });
+      } else {
+        document.getElementById('weatherResult').innerText = 'Не удалось определить местоположение.';
+        document.getElementById('loadingIndicator').style.display = 'none';
+      }
+    })
+    .catch(error => {
+      document.getElementById('weatherResult').innerText = 'Ошибка получения местоположения.';
+      console.error(error);
+      document.getElementById('loadingIndicator').style.display = 'none';
+    });
+});
+</script>
 
 </body>
 </html>
