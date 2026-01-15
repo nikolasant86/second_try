@@ -1,28 +1,20 @@
-/*
-function calculateCosts() {
-  const quantity = document.getElementById('quantity').value;
-  const costPerUnit = document.getElementById('costPerUnit').value;
+const weatherBlock = document.querySelector('.weather');
+const weatherInfo = document.createTextNode(' загрузка...')
+weatherBlock.appendChild(weatherInfo)
 
-  fetch('/calculate', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ quantity, costPerUnit })
-  })
-  .then(response => response.json())
-/*  .then(data => {
-    document.getElementById('totalCost').innerText = 'Общая стоимость: ' + data.totalCost.toFixed(2);
-  })
-  .then(data => {
-  document.getElementById('totalCost').innerText = 'Общая стоимость: ' + data.totalCost.toFixed(2);
-  })
-  .catch(error => {
-    document.getElementById('totalCost').innerText = 'Ошибка при вычислении.';
-  });
-  return false; // отмена отправки формы по умолчанию
-}*/
-
+function getCityWeather() {
+    fetch('http://localhost/api/get_city')
+    .then(res => res.text())
+    .then(data => {
+      weatherBlock.textContent = data || "данных о погоде нет"
+    }) 
+    .catch(err => {
+      weatherBlock.textContent = "данных о погоде нет"
+      console.error(err)
+    })
+    
+}
+getCityWeather()
 
 
 function calculateCosts() {
@@ -65,3 +57,6 @@ window.onclick = (event) => {
     modal.style.display = "none";
   }
 }
+
+
+

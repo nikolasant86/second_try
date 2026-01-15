@@ -1,78 +1,40 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<title>Главная — Мой проект дома</title>
-<link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8" />
+    <title>Главная — Мой проект дома</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  
+  <div class="main-menu" style="display: flex; background-color: #2c3e50; color: #fff; height: 40px;">
 
-  <!-- Раздел навигации -->
-  <nav>
-  <a href="main.html">Главная</a>
-  <a href="home-calculator.html">Калькулятор затрат</a>
-  <a href="zem-uchastok.html">Земельный участок</a>
-  </nav>
+    <div class="menu-buttons">
+      <a href="main.html" style="text-decoration: none; color: #fff;">Главная</a>
+      <a href="home-calculator.html" style="text-decoration: none; color: #fff;">Калькулятор затрат</a>
+      <a href="zem-uchastok.html" style="text-decoration: none; color: #fff;">Земельный участок</a>
+    </div>  
 
-<h1>Проект моего дома</h1>
-
-<div class="container">
-  <div class="description">
-    <p>
-      Этот проект представляет собой современный уютный дом, построенный из экологичных материалов. Он предназначен для комфортного проживания семьи из 5-6 человек.
-    </p>
-    <p>
-      В доме есть четыре спальни, просторная гостиная, кухня-столовая, две ванные комнаты и гараж на две машины. Планировка оптимальна для удобства и приватности всех членов семьи.
-    </p>
-    <p>
-      В будущем этот сайт будет содержать подробные планы, фотографии и дополнительную информацию о проекте.
-    </p>
+  <div class="weather" style="margin-left: 50%;"> Погода в реальном времени</div>
   </div>
-</div>
 
-<!-- Кнопка -->
-<button id="weatherBtn">Погода сейчас</button>
-<div id="loadingIndicator" style="display: none;">Загрузка...</div>
-<div id="weatherResult"></div>
+  <h1>Проект моего дома</h1>
 
-<script>
-document.getElementById('weatherBtn').addEventListener('click', function() {
-  // Показать индикатор загрузки
-  document.getElementById('loadingIndicator').style.display = 'inline';
+  <div class="container">
+    <div class="description">
+      <p>
+        Этот проект представляет собой современный уютный дом, построенный из экологичных материалов. Он предназначен для комфортного проживания семьи из 5-6 человек.
+      </p>
+      <p>
+        В доме есть четыре спальни, просторная гостиная, кухня-столовая, две ванные комнаты и гараж на две машины. Планировка оптимальна для удобства и приватности всех членов семьи.
+      </p>
+      <p>
+        В будущем этот сайт будет содержать подробные планы, фотографии и дополнительную информацию о проекте.
+      </p>
+    </div>
+  </div>
 
-  fetch('http://localhost:8001/')
-    .then(response => response.json())
-    .then(data => {
-      if (data && data.city) {
-        fetch(`http://localhost:8001/api/weather?city=${data.city}`)
-          .then(response => response.json())
-          .then(weatherData => {
-            if (weatherData && weatherData.weather) {
-              document.getElementById('weatherResult').innerText = 
-                `Погода в ${data.city}: ${weatherData.weather.description}, Температура: ${weatherData.weather.temp}°C`;
-            } else {
-              document.getElementById('weatherResult').innerText = 'Погода не определена.';
-            }
-            // Скрыть индикатор загрузки
-            document.getElementById('loadingIndicator').style.display = 'none';
-          })
-          .catch(error => {
-            document.getElementById('weatherResult').innerText = 'Ошибка получения данных о погоде.';
-            console.error(error);
-            document.getElementById('loadingIndicator').style.display = 'none';
-          });
-      } else {
-        document.getElementById('weatherResult').innerText = 'Не удалось определить местоположение.';
-        document.getElementById('loadingIndicator').style.display = 'none';
-      }
-    })
-    .catch(error => {
-      document.getElementById('weatherResult').innerText = 'Ошибка получения местоположения.';
-      console.error(error);
-      document.getElementById('loadingIndicator').style.display = 'none';
-    });
-});
-</script>
+      <script src="./scripts.js"></script>
 
 </body>
 </html>

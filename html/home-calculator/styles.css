@@ -8,6 +8,16 @@ body {
     text-align: center;
     color: #2c3e50;
   }
+  .main-menu {
+    display: flex;
+    flex-direction: row;
+  }
+  .weather {
+    width: 15%
+  }
+  .menu-buttons {
+    width: 85%;
+  }
   .container {
     max-width: 800px;
     margin: 0 auto;
@@ -138,3 +148,4 @@ body {
   .container {
     margin-top: 30px;
   }
+  
