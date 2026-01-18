@@ -3,7 +3,7 @@ const weatherInfo = document.createTextNode(' загрузка...')
 weatherBlock.appendChild(weatherInfo)
 
 function getCityWeather() {
-    fetch('http://localhost/api/get_city')
+    fetch('http://localhost:7999/api/get_city')
     .then(res => res.text())
     .then(data => {
       weatherBlock.textContent = data || "данных о погоде нет"

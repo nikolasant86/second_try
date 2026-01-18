@@ -1,7 +1,7 @@
 
 services:
   geoservice:
-    image: nikolavasant/geoservice:1.24
+    image: nikolavasant/geoservice:1.25
     container_name: geoservice
     ports:
       - 7999:7999

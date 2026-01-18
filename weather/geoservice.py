@@ -21,7 +21,7 @@ DADATA_TOKEN = "8cad94649ead406020a534c2030d0e5248202934"
 
 # Weather Service (внутренний)
 WEATHER_SERVICE_HOST = "weather_service"
-WEATHER_SERVICE_PORT = 80
+WEATHER_SERVICE_PORT = 8002
 WEATHER_SERVICE_PATH = "/api/weather"
 
 # Локальные IP-шаблоны
