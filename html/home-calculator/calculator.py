@@ -1,8 +1,34 @@
+import os
+import logging
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 from cerberus import Validator
+from env_utils import EnvironmentConfig
 
-PORT = 5000
+# Загрузка переменных окружения
+PORT = EnvironmentConfig.get_int('CALCULATOR_PORT', 5000)
+LOG_DIR = EnvironmentConfig.get('CALCULATOR_LOG_DIR', '/var/log/calculator')
+
+# Создание директории логов
+os.makedirs(LOG_DIR, exist_ok=True)
+
+# Настройка логирования
+logger = logging.getLogger('calculator')
+logger.setLevel(logging.INFO)
+
+# Обработчики логирования
+access_handler = logging.FileHandler(os.path.join(LOG_DIR, 'access.log'))
+access_handler.setLevel(logging.INFO)
+access_formatter = logging.Formatter('%(asctime)s - %(message)s')
+access_handler.setFormatter(access_formatter)
+
+error_handler = logging.FileHandler(os.path.join(LOG_DIR, 'error.log'))
+error_handler.setLevel(logging.ERROR)
+error_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+error_handler.setFormatter(error_formatter)
+
+logger.addHandler(access_handler)
+logger.addHandler(error_handler)
 
 # Валидация данных
 schema = {
@@ -29,10 +55,10 @@ class RequestHandler(BaseHTTPRequestHandler):
             body = self.rfile.read(content_length)
             data = json.loads(body)
 
-            # Валидация
             if not validator.validate(data):
                 self._set_headers(400)
                 self.wfile.write(json.dumps({'error': 'Некорректные данные', 'details': validator.errors}).encode('utf-8'))
+                logger.info(f"Invalid data from {self.client_address}: {data} Errors: {validator.errors}")
                 return
 
             quantity = float(data['quantity'])
@@ -41,12 +67,15 @@ class RequestHandler(BaseHTTPRequestHandler):
 
             self._set_headers()
             self.wfile.write(json.dumps({'totalCost': total_cost}).encode('utf-8'))
+            logger.info(f"Processed request from {self.client_address}: {data} Total cost: {total_cost}")
+
         except json.JSONDecodeError:
             self._set_headers(400)
             self.wfile.write(json.dumps({'error': 'Некорректный JSON'}).encode('utf-8'))
         except Exception as e:
             self._set_headers(500)
             self.wfile.write(json.dumps({'error': 'Внутренняя ошибка', 'details': str(e)}).encode('utf-8'))
+            logger.error(f"Внутренняя ошибка при обработке запроса от {self.client_address}: {e}")
 
 if __name__ == '__main__':
     print(f"Запуск сервера на порту {PORT}")

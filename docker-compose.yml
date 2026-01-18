@@ -1,12 +1,74 @@
 
 services:
+  env_utils:
+    image: nikolavasant/env_utils:1.1
+    container_name: env_utils
+    networks:
+      - logging-network
+
+  geoservice:
+    image: nikolavasant/geoservice:1.27
+    container_name: geoservice
+    ports:
+      - 7999:7999
+    dns:
+      - 8.8.8.8      # Google DNS
+      - 1.1.1.1      # Cloudflare DNS
+    networks:
+      - logging-network
+    volumes:
+      - /var/log/apps/geoservice:/var/log/geoservice
+    env_file:
+      - .env
+    depends_on:
+      - weather_service
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '64M'
+  
+  # ip_service:
+  #   image: nikolavasant/ip_service:1.9
+  #   container_name: ip_service
+  #   ports:
+  #     - 8001:8001
+  #   networks:
+  #     - logging-network
+  #   volumes:
+  #     - /var/log/ip_service:/var/log/ip_service
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '1'
+  #         memory: '64M'
+
+  weather_service:
+    image: nikolavasant/weather_service:1.18
+    container_name: weather_service
+    networks:
+      - logging-network
+    volumes:
+      - /var/log/apps/weather_service:/var/log/weather_service
+    env_file:
+      - .env
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '64M'       
+
   gallery:
-    image: nikolavasant/gallery:1.9
+    image: nikolavasant/gallery:1.12
     container_name: gallery
     ports:
       - 8000:8000
     networks:
       - logging-network
+    volumes:
+      - /var/log/apps/gallery:/var/log/gallery
+    env_file:
+      - .env
     deploy:
       resources:
         limits:
@@ -14,12 +76,16 @@ services:
           memory: '128M'
 
   calculator:
-    image: nikolavasant/calculator:1.7
+    image: nikolavasant/calculator:1.9
     container_name: calculator
     ports:
       - 5000:5000
     networks:
       - logging-network
+    volumes:
+      - /var/log/apps/calculator:/var/log/calculator
+    env_file:
+      - .env
     deploy:
       resources:
         limits:
@@ -31,6 +97,9 @@ services:
     container_name: nginx
     ports:
       - 80:80
+    dns:
+      - 8.8.8.8      # Google DNS
+      - 1.1.1.1      # Cloudflare DNS
     networks:
       - logging-network
     volumes:
@@ -51,6 +120,7 @@ services:
     volumes:
       - /etc/fluent-bit:/fluent-bit/etc
       - /var/log/nginx:/var/log/nginx
+      - /var/log/apps:/var/log/apps
     depends_on:
       - nginx
     deploy:
@@ -109,7 +179,50 @@ services:
       resources:
         limits:
           cpus: '1'
-          memory: '512M'
+          memory: '1G'
+
+  node-exporter:
+    image: prom/node-exporter:v1.10.2
+    container_name: node-exporter
+    ports:
+      - 9100:9100
+    networks:
+      - logging-network
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '256M'
+
+  prometheus:
+    image: ubuntu/prometheus:3-24.04_stable
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    networks:
+      - logging-network
+    volumes:
+      - /etc/prometheus:/etc/prometheus
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '256M'
+
+  grafana:
+    image: grafana/grafana:12.4.0-20585723282-ubuntu
+    container_name: grafana
+    ports:
+      - 3000:3000
+    networks:
+      - logging-network
+    volumes:
+      - /etc/grafana:/usr/share/grafana
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: '256M'
 
 networks:
   logging-network:
