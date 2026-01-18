@@ -59,7 +59,7 @@ services:
           memory: '64M'       
 
   gallery:
-    image: nikolavasant/gallery:1.12
+    image: nikolavasant/gallery:1.17
     container_name: gallery
     ports:
       - 8000:8000
@@ -76,7 +76,7 @@ services:
           memory: '128M'
 
   calculator:
-    image: nikolavasant/calculator:1.9
+    image: nikolavasant/calculator:1.11
     container_name: calculator
     ports:
       - 5000:5000

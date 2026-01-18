@@ -3,11 +3,10 @@ import logging
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 from cerberus import Validator
-from env_utils import EnvironmentConfig
 
 # Загрузка переменных окружения
-PORT = EnvironmentConfig.get_int('CALCULATOR_PORT', 5000)
-LOG_DIR = EnvironmentConfig.get('CALCULATOR_LOG_DIR', '/var/log/calculator')
+PORT = int(os.getenv('CALCULATOR_PORT', 5000))
+LOG_DIR = os.getenv('CALCULATOR_LOG_DIR', '/var/log/calculator')
 
 # Создание директории логов
 os.makedirs(LOG_DIR, exist_ok=True)

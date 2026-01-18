@@ -4,32 +4,34 @@ import json
 import os
 import logging
 from urllib.parse import urlparse
-from env_utils import EnvironmentConfig
 
-# Загрузка переменных окружения
-PORT = EnvironmentConfig.get_int('GALLERY_PORT', 8000)
-LOG_DIR = EnvironmentConfig.get('GALLERY_LOG_DIR', '/var/log/gallery')
-IMAGES_DIR = EnvironmentConfig.get('GALLERY_IMAGES_DIR', 'images')
+# Загрузка переменных окружения с правильным преобразованием типов
+PORT = int(os.environ.get('GALLERY_PORT', '8000'))  # Преобразуем строку в int
+LOG_DIR = os.environ.get('GALLERY_LOG_DIR', '/var/log/gallery')
+IMAGES_DIR = os.environ.get('GALLERY_IMAGES_DIR', 'images')
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
 logger = logging.getLogger('gallery')
 logger.setLevel(logging.DEBUG)
 
-# Обработчики логирования
-access_handler = logging.FileHandler(os.path.join(LOG_DIR, 'access.log'))
-access_handler.setLevel(logging.INFO)
-access_formatter = logging.Formatter('%(asctime)s - %(message)s')
-access_handler.setFormatter(access_formatter)
+# Единый обработчик логирования для всех сообщений
+log_file = os.path.join(LOG_DIR, 'gallery.log')
+file_handler = logging.FileHandler(log_file)
+file_handler.setLevel(logging.DEBUG)
 
-error_handler = logging.FileHandler(os.path.join(LOG_DIR, 'error.log'))
-error_handler.setLevel(logging.ERROR)
-error_formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
-error_handler.setFormatter(error_formatter)
+# Форматтер для всех типов сообщений
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
 
-logger.addHandler(access_handler)
-logger.addHandler(error_handler)
+# Добавляем только один обработчик
+logger.addHandler(file_handler)
 logger.propagate = False
+
+# Проверяем существование директории с изображениями
+if not os.path.exists(IMAGES_DIR):
+    os.makedirs(IMAGES_DIR, exist_ok=True)
+    logger.warning(f"Директория {IMAGES_DIR} создана, так как не существовала")
 
 IMAGE_FILES = sorted([
     f for f in os.listdir(IMAGES_DIR) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif'))
@@ -99,17 +101,29 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
                 self.end_headers()
                 with open(file_path, 'rb') as f:
                     self.wfile.write(f.read())
-                logger.info(f"{client_ip} успешно отправлено изображение: {file_name}")
+                logger.info(f"{client_ip} открыто изображение: {file_name}")
             else:
                 self.send_error(404, 'Image not found')
                 logger.error(f"{client_ip} изображение не найдено: {file_name}")
         else:
+            # Логирование для прямого доступа к изображениям
+            file_path = self.translate_path(self.path)
+            if os.path.isfile(file_path) and any(file_path.lower().endswith(ext) for ext in ['.png', '.jpg', '.jpeg', '.gif']):
+                file_name = os.path.basename(file_path)
+                logger.info(f"{client_ip} открыто изображение: {file_name}")
+            
             super().do_GET()
 
 def run(server_class=http.server.HTTPServer, handler_class=MyHandler, port=PORT):
     os.chdir('.')
+    print(f"Запуск сервера на порту {port}")
+    print(f"Директория логов: {LOG_DIR}")
+    print(f"Директория изображений: {IMAGES_DIR}")
+    print(f"Найдено изображений: {len(IMAGE_FILES)}")
+    
     with socketserver.TCPServer(("", port), handler_class) as httpd:
-        print(f"Serving HTTP on port {port}")
+        print(f"HTTP сервер запущен на порту {port}")
+        logger.info(f"Сервер запущен на порту {port}")
         httpd.serve_forever()
 
 if __name__ == '__main__':
