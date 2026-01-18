@@ -8,15 +8,37 @@ import time
 import urllib.request
 from urllib.parse import urlparse, parse_qs
 
-# --- Конфигурация ---
-LOG_DIR = "/var/log/weather_service"
-LOG_FILE = os.path.join(LOG_DIR, "app.log")
-LOG_LEVEL = logging.INFO
+# --- Конфигурация из переменных окружения ---
+LOG_DIR = os.getenv('WEATHER_SERVICE_LOG_DIR', '/var/log/weather_service')
+LOG_FILE = os.getenv('WEATHER_SERVICE_LOG_FILE', os.path.join(LOG_DIR, 'app.log'))
+LOG_LEVEL = getattr(logging, os.getenv('LOG_LEVEL', 'INFO'))
 
-API_KEY = "f7c9a34a9334a866f09255980d8e0ef0"  # ⚠️ ЗАМЕНИТЕ НА СВОЙ РЕАЛЬНЫЙ КЛЮЧ!
-OPENWEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
+API_KEY = os.getenv('OPENWEATHER_API_KEY')
+OPENWEATHER_URL = os.getenv('OPENWEATHER_URL', 'https://api.openweathermap.org/data/2.5/weather')
 
-# Создание директории логов
+PORT = int(os.getenv('WEATHER_SERVICE_PORT', '8002'))
+
+def validate_environment():
+    """Проверка критических переменных окружения"""
+    errors = []
+    
+    if not API_KEY:
+        errors.append("⚠️  ВНИМАНИЕ: Используется тестовый API-ключ OpenWeatherMap. Замените его на реальный!")
+    
+    if not os.path.exists(LOG_DIR):
+        try:
+            os.makedirs(LOG_DIR)
+        except OSError as e:
+            errors.append(f"Ошибка создания директории логов: {e}")
+    
+    return errors
+
+# Проверка окружения при старте
+env_errors = validate_environment()
+for error in env_errors:
+    print(error)
+
+# Создание директории логов (если не существует)
 if not os.path.exists(LOG_DIR):
     try:
         os.makedirs(LOG_DIR)
@@ -57,7 +79,7 @@ logger.addFilter(ContextFilter())
 def is_valid_city_name(city: str) -> bool:
     if not city or len(city) > 100:
         return False
-    return bool(re.match(r'^[a-zA-Zа-яА-ЯёЁ\s\-\'\.]+$', city))  # Исправлено: убрана лишняя запятая
+    return bool(re.match(r'^[a-zA-Zа-яА-ЯёЁ\s\-\'\.]+$', city))
 
 def fetch_weather(city_name: str) -> dict:
     if not is_valid_city_name(city_name):
@@ -242,7 +264,7 @@ class WeatherHandler(http.server.BaseHTTPRequestHandler):
 
     def do_OPTIONS(self):
         self.send_response(200)
-        self.send_header("Access-Control-Allow-Origin", "http://localhost:7999")
+        self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS")
         self.send_header("Access-Control-Allow-Headers", "Content-Type")
         self.end_headers()
@@ -257,14 +279,19 @@ class WeatherHandler(http.server.BaseHTTPRequestHandler):
 
 # Запуск сервера
 if __name__ == "__main__":
-    if API_KEY == "f7c9a34a9334a866f09255980d8e0ef0":
-        print("⚠️  ВНИМАНИЕ: Используется тестовый API-ключ OpenWeatherMap. Замените его на реальный!")
-        logger.warning("Используется тестовый API-ключ OpenWeatherMap")
+    # Логирование настроек при старте
+    logger.info(f"Сервер weather-service запускается с настройками:")
+    logger.info(f"Порт: {PORT}")
+    logger.info(f"Директория логов: {LOG_DIR}")
+    logger.info(f"Файл логов: {LOG_FILE}")
+    logger.info(f"Уровень логирования: {logging.getLevelName(LOG_LEVEL)}")
+    logger.info(f"OpenWeather URL: {OPENWEATHER_URL}")
+    logger.info(f"API Key: {'*' * len(API_KEY) if API_KEY else 'не задан'}")
 
-    server_address = ('', 8002)
+    server_address = ('', PORT)
     httpd = socketserver.TCPServer(server_address, WeatherHandler)
-    print("🌐 weather-service запущен на порту 8002")
-    logger.info("Сервер weather-service запущен на порту 8002")
+    print(f"🌐 weather-service запущен на порту {PORT}")
+    logger.info(f"Сервер weather-service запущен на порту {PORT}")
 
     try:
         httpd.serve_forever()
