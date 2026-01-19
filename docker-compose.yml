@@ -59,7 +59,7 @@ services:
           memory: '64M'       
 
   gallery:
-    image: nikolavasant/gallery:1.17
+    image: nikolavasant/gallery:1.20
     container_name: gallery
     ports:
       - 8000:8000
