@@ -76,7 +76,7 @@ services:
           memory: '128M'
 
   calculator:
-    image: nikolavasant/calculator:1.11
+    image: nikolavasant/calculator:1.12
     container_name: calculator
     ports:
       - 5000:5000
