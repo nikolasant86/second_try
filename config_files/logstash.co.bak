@@ -1,0 +1,269 @@
+
+input {
+  http {
+    port => 5044
+  }
+}
+# input {
+#   beats {
+#     port => 5044
+#   }
+# }
+
+filter {
+  # ========================
+  # NGINX LOGS
+  # ========================
+  if [log-source] == "nginx" {
+    grok {
+      match => {
+        "log" => [
+          "%{IPORHOST:remote_addr} %{DATA:client_ip} %{DATA:remote_user} \[%{HTTPDATE:time_local}\] \"%{WORD:method} %{DATA:request_url} HTTP/%{NUMBER:http_version}\" %{INT:http_status} %{NUMBER:bytes_sent} %{QUOTEDSTRING:referrer} %{QUOTEDSTRING:http_user_agent}"
+        ]
+      }
+    }
+
+    # ✅ if и mutate — ВНЕ grok, на том же уровне, что и grok
+    if "_grokparsefailure" not in [tags] {
+      mutate {
+        add_tag => [ "nginx_parsed" ]
+      }
+    }
+
+    date {
+      match => [ "time_local", "dd/MMM/yyyy:HH:mm:ss Z" ]
+      target => "@timestamp"
+    }
+
+    mutate {
+      convert => { "http_status" => "integer" }
+      convert => { "bytes_sent" => "integer" }
+      rename => { "request_url" => "url" }
+    }
+  }
+
+  # ========================
+  # WEATHER_SERVICE LOGS
+  # ========================
+  if [log-source] == "weather_service" {
+    json {
+      source => "log"
+      target => "event"
+    }
+
+    mutate {
+      add_field => { "service" => "weather_service" }
+      add_field => { "requested_city" => "%{[event][requested_city]}" }
+      add_field => { "client_ip" => "%{[event][client_ip]}" }
+      add_field => { "response_status" => "%{[event][response_status]}" }
+      add_field => { "duration_ms" => "%{[event][duration_ms]}" }
+      add_field => { "api_response" => "%{[event][api_response]}" }
+      add_field => { "message" => "%{[event][message]}" }
+    }
+
+    mutate {
+      remove_field => [ "log", "event" ]
+    }
+
+    date {
+      match => [ "timestamp_iso", "ISO8601" ]
+      target => "@timestamp"
+    }
+
+    mutate {
+      convert => { "response_status" => "integer" }
+      convert => { "duration_ms" => "integer" }
+    }
+
+    if [response_status] == 200 {
+      mutate { add_tag => [ "success", "http_200" ] }
+    } else if [response_status] == 0 {
+      mutate { add_tag => [ "processing", "pending" ] }
+    }
+
+    if [api_response] == "success" {
+      mutate { add_tag => [ "weather_success" ] }
+    }
+  }
+
+  # ========================
+  # GEO SERVICE LOGS
+  # ========================
+  if [log-source] == "geoservice" {
+    json {
+      source => "log"
+      target => "event"
+    }
+
+    mutate {
+      add_field => { "service" => "geoservice" }
+      add_field => { "client_ip" => "%{[event][client_ip]}" }
+      add_field => { "city" => "%{[event][city]}" }
+      add_field => { "status" => "%{[event][status]}" }
+      add_field => { "action" => "%{[event][action]}" }
+      add_field => { "message" => "%{[event][message]}" }
+    }
+
+    mutate {
+      remove_field => [ "log", "event" ]
+    }
+
+    date {
+      match => [ "timestamp", "ISO8601" ]
+      target => "@timestamp"
+    }
+
+    mutate {
+      convert => { "status" => "integer" }
+    }
+
+    if [action] == "dadata_success" {
+      mutate { add_tag => [ "dadata_hit" ] }
+    }
+    if [action] == "city_determined" {
+      mutate { add_tag => [ "city_determined" ] }
+    }
+    if [action] == "weather_service_success" {
+      mutate { add_tag => [ "weather_received" ] }
+    }
+  }
+
+  # ========================
+  # CALCULATOR LOGS
+  # ========================
+  if [log-source] == "calculator" {
+    json {
+      source => "log"
+      target => "event"
+    }
+
+    mutate {
+      add_field => { "service" => "calculator" }
+      add_field => { "client_ip" => "%{[event][client_ip]}" }
+      add_field => { "public_ip" => "%{[event][public_ip]}" }
+      add_field => { "response_status" => "%{[event][response_status]}" }
+      add_field => { "request" => "%{[event][request]}" }
+      add_field => { "quantity" => "%{[event][quantity]}" }
+      add_field => { "costPerUnit" => "%{[event][costPerUnit]}" }
+      add_field => { "totalCost" => "%{[event][totalCost]}" }
+      add_field => { "message" => "%{[event][message]}" }
+    }
+
+    mutate {
+      remove_field => [ "log", "event" ]
+    }
+
+    date {
+      match => [ "timestamp", "ISO8601" ]
+      target => "@timestamp"
+    }
+
+    mutate {
+      convert => { "response_status" => "integer" }
+      convert => { "quantity" => "float" }
+      convert => { "costPerUnit" => "float" }
+      convert => { "totalCost" => "float" }
+    }
+
+    if [request] == "CALCULATION_SUCCESS" {
+      mutate { add_tag => [ "calculation_success" ] }
+    }
+    if [request] == "IP_RESOLVE" {
+      mutate { add_tag => [ "ip_resolved" ] }
+    }
+  }
+
+  # ========================
+  # GALLERY LOGS
+  # ========================
+  if [log-source] == "gallery" {
+    json {
+      source => "log"
+      target => "event"
+    }
+
+    mutate {
+      add_field => { "service" => "gallery" }
+      add_field => { "client_ip" => "%{[event][client_ip]}" }
+      add_field => { "public_ip" => "%{[event][public_ip]}" }
+      add_field => { "response_status" => "%{[event][response_status]}" }
+      add_field => { "file" => "%{[event][file]}" }
+      add_field => { "scale" => "%{[event][scale]}" }
+      add_field => { "index" => "%{[event][index]}" }
+      add_field => { "content_type" => "%{[event][content_type]}" }
+      add_field => { "message" => "%{[event][message]}" }
+    }
+
+    mutate {
+      remove_field => [ "log", "event" ]
+    }
+
+    date {
+      match => [ "timestamp", "ISO8601" ]
+      target => "@timestamp"
+    }
+
+    mutate {
+      convert => { "response_status" => "integer" }
+      convert => { "scale" => "float" }
+      convert => { "index" => "integer" }
+    }
+
+    if [request] == "GET /images/10.jpg?scale=0.3" {
+      mutate { add_tag => [ "image_scaled" ] }
+    }
+    if [request] == "GET /api/image/0" {
+      mutate { add_tag => [ "image_requested" ] }
+    }
+    if [message] == "Масштабированное изображение успешно отправлено" {
+      mutate { add_tag => [ "image_sent_scaled" ] }
+    }
+    if [message] == "Оригинальное изображение успешно отправлено" {
+      mutate { add_tag => [ "image_sent_original" ] }
+    }
+  }
+}
+
+output {
+  if [log-source] == "nginx" {
+    elasticsearch {
+      hosts => "http://elastic:9200"
+      index => "nginx-%{+YYYYMMdd}"
+      document_id => "%{[remote_addr]}-%{+YYYYMMddHHmmss}"
+    }
+  }
+  else if [log-source] == "weather_service" {
+    elasticsearch {
+      hosts => "http://elastic:9200"
+      index => "weather_service-%{+YYYYMMdd}"
+      document_id => "%{[request_id]}"
+    }
+  }
+  else if [log-source] == "geoservice" {
+    elasticsearch {
+      hosts => "http://elastic:9200"
+      index => "geoservice-%{+YYYYMMdd}"
+      document_id => "%{[request_id]}"
+    }
+  }
+  else if [log-source] == "calculator" {
+    elasticsearch {
+      hosts => "http://elastic:9200"
+      index => "calculator-%{+YYYYMMdd}"
+      document_id => "%{[request_id]}"
+    }
+  }
+  else if [log-source] == "gallery" {
+    elasticsearch {
+      hosts => "http://elastic:9200"
+      index => "gallery-%{+YYYYMMdd}"
+      document_id => "%{[request_id]}"
+    }
+  }
+  else {
+    elasticsearch {
+      hosts => "http://elastic:9200"
+      index => "no-tags-%{+YYYYMMdd}"
+    }
+  }
+}

@@ -1,123 +1,290 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8" />
-<title>Земельный участок</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <title>Земельный участок</title>
+  <style>
+    /* Навигация */
+    nav {
+      text-align: center;
+      margin: 20px 0;
+    }
+    nav a {
+      margin: 0 15px;
+      text-decoration: none;
+      color: #007bff;
+      font-weight: bold;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+
+    /* ГАЛЕРЕЯ — миниатюры ЦЕНТРИРОВАНЫ */
+    #gallery-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 15px;
+      margin: 40px auto;
+      padding: 20px;
+      max-width: 1200px;
+    }
+
+    #gallery-container img {
+      width: 120px;
+      height: auto;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      transition: transform 0.2s ease;
+    }
+
+    #gallery-container img:hover {
+      transform: scale(1.05);
+    }
+
+    /* МОДАЛЬНОЕ ОКНО — идеальное центрирование */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
+      overflow: hidden;
+      cursor: zoom-in;
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      max-width: 95vw;
+      max-height: 90vh;
+      object-fit: contain;
+      transition: transform 0.1s ease;
+      cursor: pointer;
+    }
+
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: #f1f1f1;
+      font-size: 40px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    /* Кнопки управления — по центру внизу */
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 10px;
+      z-index: 1001;
+    }
+
+    .controls button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 6px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .controls button:hover {
+      background: #0056b3;
+    }
+
+    /* Индикатор загрузки */
+    .loading {
+      color: white;
+      font-size: 18px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1002;
+      display: none;
+    }
+  </style>
 </head>
 <body>
 
-<!-- Навигация -->
 <nav>
   <a href="main.html">Главная</a>
   <a href="home-calculator.html">Калькулятор затрат</a>
   <a href="zem-uchastok.html">Земельный участок</a>
 </nav>
 
-<h1>Земельный участок</h1>
+<h1 style="text-align: center;">Земельный участок</h1>
 
-<!-- Фото галерея -->
-<div class="gallery">
-  <img src="images/01.jpg" alt="Фото 1" />
-  <img src="images/02.jpg" alt="Фото 2" />
-  <img src="images/03.jpg" alt="Фото 3" />
-  <img src="images/04.jpg" alt="Фото 4" />
-  <img src="images/05.jpg" alt="Фото 5" />
-  <img src="images/06.jpg" alt="Фото 6" />
-  <img src="images/07.jpg" alt="Фото 7" />
-  <img src="images/08.jpg" alt="Фото 8" />
-  <img src="images/09.jpg" alt="Фото 9" />
-  <img src="images/10.jpg" alt="Фото 10" />
-  <!-- добавьте свои фотографии по необходимости -->
+<!-- ГАЛЕРЕЯ МИНИАТЮР — теперь центрирована -->
+<div id="gallery-container">
+  <p class="loading">Загрузка изображений...</p>
 </div>
 
-<!-- Модальное окно для увеличения изображений -->
+<!-- МОДАЛЬНОЕ ОКНО — ПУСТОЕ ПРИ ЗАГРУЗКЕ, НЕ ОТКРЫВАЕТСЯ -->
 <div id="myModal" class="modal">
   <span class="close">&times;</span>
-  <img class="modal-content" id="fullImage" />
+  <img class="modal-content" id="fullImage" alt="Увеличенное изображение" />
+  <div class="loading" id="loadingIndicator">Загрузка...</div>
 </div>
 
-<!-- Скрипт (можете подключить отдельно в scripts.js) -->
-<!--
-<script src="scripts.js"></script>
--->
+<!-- КНОПКИ УПРАВЛЕНИЯ -->
+<div class="controls" id="controls" style="display: none;">
+  <button id="prevBtn">← Предыдущее</button>
+  <button id="resetBtn">Сбросить масштаб</button>
+  <button id="nextBtn">Следующее →</button>
+</div>
 
 <script>
-const images = [
-  "images/01.jpg",
-  "images/02.jpg",
-  "images/03.jpg",
-  "images/04.jpg",
-  "images/05.jpg",
-  "images/06.jpg",
-  "images/07.jpg",
-  "images/08.jpg",
-  "images/09.jpg",
-  "images/10.jpg"
-];
+  const SERVER_URL = 'http://localhost:8000';
+  const IMAGE_API = `${SERVER_URL}/api/images`;
+  const IMAGE_ENDPOINT = `${SERVER_URL}/api/image/`;
+  const MAX_SCALE = 3.0;
+  const MIN_SCALE = 0.1;
+  const SCALE_STEP = 0.1;
 
-let currentIndex = 0;
+  let currentImageIndex = 0;
+  let currentScale = 1.0;
+  let imageFiles = [];
 
-const modal = document.getElementById("myModal");
-const modalImg = document.getElementById("fullImage");
-const closeBtn = document.getElementsByClassName("close")[0];
+  const modal = document.getElementById("myModal");
+  const modalImg = document.getElementById("fullImage");
+  const closeBtn = document.getElementsByClassName("close")[0];
+  const controls = document.getElementById("controls");
+  const galleryContainer = document.getElementById("gallery-container");
+  const loadingIndicator = document.getElementById("loadingIndicator");
 
-document.querySelectorAll('.gallery img').forEach((img, index) => {
-  img.onclick = () => {
-    currentIndex = index;
-    fetchImage(currentIndex);
-    modal.style.display = "block";
-  };
-});
+  // ✅ НИКАКИХ ВЫЗОВОВ openModal() ЗДЕСЬ — ТОЛЬКО ПО КЛИКУ!
+  async function loadImages() {
+    try {
+      const response = await fetch(IMAGE_API);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      imageFiles = data.images || [];
 
-closeBtn.onclick = () => {
-  modal.style.display = "none";
-};
+      if (imageFiles.length === 0) {
+        galleryContainer.innerHTML = '<p style="color: #ccc; text-align: center;">Изображения не найдены.</p>';
+        return;
+      }
 
-window.onclick = (event) => {
-  if (event.target == modal) {
-    modal.style.display = "none";
-  }
-};
+      // ✅ Центрирование миниатюр — все изображения по центру
+      galleryContainer.innerHTML = imageFiles.map((filename, index) => `
+        <img src="${SERVER_URL}/images/${filename}?scale=0.3" alt="Фото ${index + 1}" />
+      `).join('');
 
-// Клавиши для перелистывания
-document.onkeydown = (e) => {
-  if (modal.style.display === "block") {
-    if (e.key === "ArrowRight") {
-      currentIndex = (currentIndex + 1) % images.length;
-      fetchImage(currentIndex);
-    } else if (e.key === "ArrowLeft") {
-      currentIndex = (currentIndex - 1 + images.length) % images.length;
-      fetchImage(currentIndex);
+      // Добавляем обработчики кликов — ТОЛЬКО ПО КЛИКУ
+      document.querySelectorAll('#gallery-container img').forEach((img, index) => {
+        img.onclick = () => openModal(index);
+      });
+
+      controls.style.display = 'flex';
+
+    } catch (error) {
+      console.error('Ошибка загрузки изображений:', error);
+      galleryContainer.innerHTML = '<p style="color: red; text-align: center;">Не удалось загрузить изображения. Проверьте сервер.</p>';
+    } finally {
+      document.querySelector('.loading')?.remove();
     }
   }
-};
 
-//fetch('http://localhost:8000/api/images')
-//  .then(res => res.json())
-//  .then(data => {
-    // data.images — массив имён файлов
-    // Можно динамически сформировать галерею
-//  });
+  // ✅ ОТКРЫВАЕМ ТОЛЬКО ПО КЛИКУ — НИКАКИХ АВТОМАТИЧЕСКИХ ВЫЗОВОВ!
+  function openModal(index) {
+    currentImageIndex = index;
+    currentScale = 1.0;
+    modal.style.display = "flex"; // ✅ ОТКРЫВАЕМ ТОЛЬКО ПРИ КЛИКЕ
+    fetchAndDisplayImage(index);
+  }
 
-function fetchImage(index) {
-  fetch(`http://localhost:8000/api/image/${index}`, { method: 'GET' })
-    .then(res => {
-      if (res.ok) return res.blob();
-      throw new Error(`Ошибка загрузки изображения: ${res.status}`);
-    })
-    .then(blob => {
+  async function fetchAndDisplayImage(index) {
+    loadingIndicator.style.display = 'block'; // Показываем индикатор
+    modalImg.style.transform = `scale(${currentScale})`;
+
+    try {
+      const response = await fetch(`${IMAGE_ENDPOINT}${index}`);
+      if (!response.ok) throw new Error(`Ошибка загрузки: ${response.status}`);
+
+      const blob = await response.blob();
       const url = URL.createObjectURL(blob);
-      console.log('Создан URL:', url);
       modalImg.src = url;
-      console.log('Установлено src:', modalImg.src);
-    })
-    .catch(error => {
-      alert(error.message);
-      modal.style.display = "none";
-    });
-}
+      document.title = `Земельный участок — ${imageFiles[index]}`;
 
+    } catch (error) {
+      console.error('Ошибка загрузки изображения:', error);
+      alert(`Ошибка загрузки изображения: ${error.message}`);
+      modal.style.display = "none";
+    } finally {
+      loadingIndicator.style.display = 'none'; // Скрываем после загрузки
+    }
+  }
+
+  // ✅ ЗАКРЫТИЕ ПО КЛИКУ НА КРЕСТИК ИЛИ НА ТЕМНУЮ ОБЛАСТЬ
+  closeBtn.onclick = () => {
+    modal.style.display = "none";
+  };
+
+  window.onclick = (event) => {
+    if (event.target === modal) {
+      modal.style.display = "none";
+    }
+  };
+
+  // ✅ УПРАВЛЕНИЕ КЛАВИШАМИ
+  document.onkeydown = (e) => {
+    if (modal.style.display === "flex") {
+      if (e.key === "ArrowRight") {
+        currentImageIndex = (currentImageIndex + 1) % imageFiles.length;
+        fetchAndDisplayImage(currentImageIndex);
+      } else if (e.key === "ArrowLeft") {
+        currentImageIndex = (currentImageIndex - 1 + imageFiles.length) % imageFiles.length;
+        fetchAndDisplayImage(currentImageIndex);
+      }
+    }
+  };
+
+  // ✅ МАСШТАБИРОВАНИЕ КОЛЕСОМ
+  modal.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    if (e.deltaY > 0) {
+      currentScale = Math.max(MIN_SCALE, currentScale - SCALE_STEP);
+    } else {
+      currentScale = Math.min(MAX_SCALE, currentScale + SCALE_STEP);
+    }
+    modalImg.style.transform = `scale(${currentScale})`;
+  });
+
+  // ✅ КНОПКИ УПРАВЛЕНИЯ
+  document.getElementById("prevBtn").onclick = () => {
+    currentImageIndex = (currentImageIndex - 1 + imageFiles.length) % imageFiles.length;
+    fetchAndDisplayImage(currentImageIndex);
+  };
+
+  document.getElementById("nextBtn").onclick = () => {
+    currentImageIndex = (currentImageIndex + 1) % imageFiles.length;
+    fetchAndDisplayImage(currentImageIndex);
+  };
+
+  document.getElementById("resetBtn").onclick = () => {
+    currentScale = 1.0;
+    modalImg.style.transform = `scale(${currentScale})`;
+  };
+
+  // ✅ ЗАГРУЗКА ТОЛЬКО ПРИ ЗАГРУЗКЕ СТРАНИЦЫ — НИКАКОГО openModal()
+  window.onload = () => {
+    loadImages();
+    // ✅ НИКАКИХ ДОПОЛНИТЕЛЬНЫХ ВЫЗОВОВ — НЕТ openModal(0) — НЕТ ОТКРЫТИЯ!
+    // ✅ МОДАЛЬНОЕ ОКНО ОСТАЁТСЯ display: none — ГАРАНТИРОВАННО
+  };
 </script>
 
 </body>

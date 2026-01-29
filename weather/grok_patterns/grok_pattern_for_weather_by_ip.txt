@@ -1,0 +1,96 @@
+
+2026-01-21 12:22:15 | INFO     | 172.20.0.1      | get_request          | unknown         | 000 | Получен GET-запрос
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:local_ip}      \| %{WORD:method}          \| %{DATA:location}         \| %{INT:http_status} \| %{DATA:message} %{WORD:method}-%{DATA:message}
+
+2026-01-21 12:22:15 | INFO     | 172.20.0.1      | get_request          | unknown         | 000 | Получен GET-запрос
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:local_ip}      \| %{WORD:method}          \| %{DATA:location}         \| %{INT:http_status} \| %{DATA:message} %{WORD:method}-%{DATA:message}
+
+2026-01-21 12:22:15 | INFO     | 172.20.0.1      | ip_initial           | unknown         | 000 | Исходный IP: 172.20.0.1
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:local_ip}      \| %{DATA:message}           \| %{DATA:location}         \| %{INT:http_status} \| %{DATA:message}: %{IP:local_ip}
+
+2026-01-21 12:22:15 | INFO     | unknown         | ip_local             | unknown         | 000 | Локальный IP: 172.20.0.1. Запрашиваем публичный...
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{DATA:message}         \| %{DATA:message}             \| %{DATA:location}         \| %{INT:http_status} \| %{DATA:message}: %{IP:local_ip}. %{DATA:message}... 
+
+2026-01-21 12:22:15 | INFO     | 172.20.0.1      | ip_initial           | unknown         | 000 | Исходный IP: 172.20.0.1
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:local_ip}      \| %{DATA:message}           \| %{DATA:location}         \| %{INT:http_status} \| %{DATA:message}: %{IP:local_ip}
+
+2026-01-21 12:22:15 | INFO     | unknown         | ip_local             | unknown         | 000 | Локальный IP: 172.20.0.1. Запрашиваем публичный...
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{DATA:message}         \| %{DATA:message}             \| %{DATA:location}         \| %{INT:http_status} \| %{DATA:message}: %{IP:local_ip}. %{DATA:message}... 
+
+2026-01-21 12:22:15 | INFO     | 109.71.207.240  | ip_replaced          | unknown         | 000 | Заменён на публичный IP: 109.71.207.240
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:public_ip}  \| %{DATA:message}          \| %{DATA:location}         \| %{INT:http_status} \| %{DATA:message}: %{IP:public_ip}
+
+2026-01-21 12:22:15 | INFO     | unknown         | dadata_success       | Липецк          | 000 | DaData вернул город: Липецк
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{DATA:message}         \| %{DATA:message}       \| %{DATA:location}          \| %{INT:http_status} \| %{DATA:message}: %{DATA:location}
+
+2026-01-21 12:22:15 | INFO     | 109.71.207.240  | city_determined      | Липецк          | 000 | Определён город: Липецк
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:public_ip}  \| %{DATA:message}      \| %{DATA:location}          \| %{INT:http_status} \| %{DATA:message}: %{DATA:location}
+
+2026-01-21 12:22:15 | INFO     | 172.20.0.3      | /api/weather | pending         | 0   | processing | pending | 0ms
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:local_ip}      \| %{URIPATH:endpoint} \| %{WORD:status}         \| %{INT:http_status}   \| %{WORD:status} \| %{WORD:status} \| %{NUMBER:value}ms
+
+2026-01-21 12:22:15 | INFO     | 172.20.0.3      | /api/weather | Липецк          | 200 | ok | city_received | 0ms
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:local_ip}      \| %{URIPATH:endpoint} \| %{DATA:location}          \| %{INT:http_status} \| %{WORD:status} \| %{WORD:status} \| %{NUMBER:value}ms
+
+2026-01-21 12:22:15 | INFO     | unknown         | unknown      | Липецк          | 200 | {"weather": {"description": "пасмурно", "temp": -5.1}} | success | 256ms
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{DATA:message}         \| %{DATA:message}      \| %{DATA:location}          \| %{INT:http_status} \| {"%{DATA:message}": {"%{DATA:message}", "%{DATA:message}": %{NUMBER:value}}} \| %{WORD:status} \| %{NUMBER:value}ms
+
+2026-01-21 12:22:15 | INFO     | 172.20.0.3      | /api/weather | Липецк          | 200 | {"weather": {"description": "пасмурно", "temp": -5.1}} | success | 257ms
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:local_ip}      \| %{URIPATH:endpoint} \| %{DATA:location}          \| %{INT:http_status} \| {"%{DATA:message}": {"%{DATA:message}", "%{DATA:message}": %{NUMBER:value}}} \| %{WORD:status} \| %{NUMBER:value}ms
+
+2026-01-21 12:22:15 | INFO     | unknown         | weather_service_success | Липецк          | 000 | Погода получена от weather-service: {'weather': {'description': 'пасмурно', 'temp': -5.1}}
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{DATA:message}         \| %{WORD:status} \| %{DATA:location}          \| %{INT:http_status} \| %{DATA:message}: {'%{DATA:message}': {'%{DATA:message}': '%{DATA:message}', '%{DATA:message}': %{NUMBER:value}}}
+
+2026-01-21 12:22:15 | INFO     | 109.71.207.240  | response_sent        | unknown         | 200 | Отправлен ответ браузеру: Липецк пасмурно -5.1
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:public_ip}  \| %{WORD:status}        \| %{DATA:message}         \| %{INT:http_status} \| %{DATA:message}: %{DATA:message} %{NUMBER:value}
+
+2026-01-21 12:22:15 | INFO     | 109.71.207.240  | ip_replaced          | unknown         | 000 | Заменён на публичный IP: 109.71.207.240
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:public_ip}  \| %{WORD:status}          \| %{DATA:message}         \| %{INT:http_status} \| %{DATA:message}: %{IP:public_ip}
+
+2026-01-21 12:22:15 | INFO     | unknown         | dadata_success       | Липецк          | 000 | DaData вернул город: Липецк
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{DATA:message}         \| %{WORD:status}       \| %{DATA:location}          \| %{INT:http_status} \| %{DATA:message}: %{DATA:location}
+
+2026-01-21 12:22:15 | INFO     | 109.71.207.240  | city_determined      | Липецк          | 000 | Определён город: Липецк
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:public_ip}  \| %{WORD:status}      \| %{DATA:location}          \| %{INT:http_status} \| %{DATA:message}: %{DATA:location}
+
+2026-01-21 12:22:15 | INFO     | 172.20.0.3      | /api/weather | pending         | 0   | processing | pending | 0ms
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:local_ip}      \| %{URIPATH:endpoint} \| %{WORD:status}         \| %{INT:http_status}   \| %{WORD:status} \| %{WORD:status} \| %{NUMBER:value}ms
+
+2026-01-21 12:22:15 | INFO     | 172.20.0.3      | /api/weather | Липецк          | 200 | ok | city_received | 0ms
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:local_ip}      \| %{URIPATH:endpoint} \| %{DATA:location}          \| %{INT:http_status} \| %{WORD:status} \| %{WORD:status} \| %{NUMBER:value}ms
+
+2026-01-21 12:22:15 | INFO     | unknown         | unknown      | Липецк          | 200 | {"weather": {"description": "пасмурно", "temp": -5.1}} | success | 256ms
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{DATA:message}         \| %{DATA:message}      \| %{DATA:location}          \| %{INT:http_status} \| {"%{DATA:message}": {"%{DATA:message}": "%{DATA:message}", "%{DATA:message}": %{NUMBER:value}}} \| %{WORD:status} \| %{NUMBER:value}ms
+
+2026-01-21 12:22:15 | INFO     | 172.20.0.3      | /api/weather | Липецк          | 200 | {"weather": {"description": "пасмурно", "temp": -5.1}} | success | 257ms
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:local_ip}      \| %{URIPATH:endpoint} \| %{DATA:location}          \| %{INT:http_status} \| {"%{DATA:message}": {"%{DATA:message}": "%{DATA:message}", "%{DATA:message}": %{NUMBER:value}}} \| %{WORD:status} \| %{NUMBER:value}ms
+
+2026-01-21 12:22:15 | INFO     | unknown         | weather_service_success | Липецк          | 000 | Погода получена от weather-service: {'weather': {'description': 'пасмурно', 'temp': -5.1}}
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{DATA:message}         \| %{WORD:status} \| %{DATA:location}          \| %{INT:http_status} \| %{DATA:message}: {'%{DATA:message}': {'%{DATA:message}': '%{DATA:message}', '%{DATA:message}': %{NUMBER:value}}}
+
+2026-01-21 12:22:15 | INFO     | 109.71.207.240  | response_sent        | unknown         | 200 | Отправлен ответ браузеру: Липецк пасмурно -5.1
+
+%{TIMESTAMP_ISO8601:timestamp} \| %{LOGLEVEL:level}     \| %{IP:public_ip}  \| %{WORD:status}        \| %{DATA:message}         \| %{INT:http_status} \| %{DATA:message}: %{DATA:location} %{DATA:message} %{NUMBER:value}

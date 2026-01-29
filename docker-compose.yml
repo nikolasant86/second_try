@@ -7,7 +7,7 @@ services:
       - logging-network
 
   geoservice:
-    image: nikolavasant/geoservice:1.27
+    image: nikolavasant/geoservice:1.32
     container_name: geoservice
     ports:
       - 7999:7999
@@ -44,7 +44,7 @@ services:
   #         memory: '64M'
 
   weather_service:
-    image: nikolavasant/weather_service:1.18
+    image: nikolavasant/weather_service:1.19
     container_name: weather_service
     networks:
       - logging-network
@@ -59,7 +59,7 @@ services:
           memory: '64M'       
 
   gallery:
-    image: nikolavasant/gallery:1.20
+    image: nikolavasant/gallery:1.31
     container_name: gallery
     ports:
       - 8000:8000
@@ -76,7 +76,7 @@ services:
           memory: '128M'
 
   calculator:
-    image: nikolavasant/calculator:1.12
+    image: nikolavasant/calculator:1.18
     container_name: calculator
     ports:
       - 5000:5000
@@ -133,7 +133,7 @@ services:
     image: logstash:8.18.8
     container_name: logstash
     ports:
-      - 5044:5044
+      - 5045:5045
     networks:
       - logging-network
     volumes:
@@ -144,7 +144,7 @@ services:
       resources:
         limits:
           cpus: '1'
-          memory: '512M'
+          memory: '3G'
 
   elasticsearch:
     image: elasticsearch:8.18.8
