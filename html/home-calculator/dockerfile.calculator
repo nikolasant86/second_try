@@ -24,6 +24,7 @@ WORKDIR /app
 
 # Устанавливаем необходимые библиотеки
 RUN pip install --no-cache-dir cerberus
+RUN pip install requests
 
 # Копируем файлы
 COPY calculator.py .

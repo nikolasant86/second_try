@@ -13,10 +13,10 @@ body {
     flex-direction: row;
   }
   .weather {
-    width: 15%
+    width: 25%
   }
   .menu-buttons {
-    width: 85%;
+    width: 75%;
   }
   .container {
     max-width: 800px;

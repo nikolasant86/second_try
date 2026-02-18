@@ -3,5 +3,7 @@ WORKDIR /app
 COPY gallery.py .
 COPY images/ ./images
 RUN pip install cerberus
+RUN pip install requests
+RUN pip install pillow
 EXPOSE 8000
 CMD ["python", "gallery.py"]

@@ -1,0 +1,13 @@
+2026-01-21 10:06:35,028 - INFO - Клиент 172.20.0.1 имеет публичный IP: 109.71.207.240
+
+%{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - %{DATA:message} %{IP:local_ip} %{DATA:message}: %{IP:public_ip}
+
+2026-01-21 10:06:35,049 - INFO - 109.71.207.240 - "POST /calculate HTTP/1.1" 200 -
+
+%{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - %{IP:public_ip} - "%{WORD:method} %{URIPATH:path} %{URIPROTO:protocol}/%{NUMBER:version}" %{NUMBER:status:int} -
+
+2026-01-21 10:06:35,050 - INFO - 109.71.207.240 - расчет стоимости: quantity=12.0, costPerUnit=15.0, totalCost=180.0
+
+%{TIMESTAMP_ISO8601:timestamp} - %{LOGLEVEL:level} - %{IP:public_ip} - %{DATA:message}: quantity=%{NUMBER:quantity:float}, costPerUnit=%{NUMBER:costPerUnit:float}, totalCost=%{NUMBER:totalCost:float}
+
+дату и время, уровень логов, какой запрос был отправлен, с какого локального ip адреса был отправлен запрос, какой публичный ip адрес, какой ответ вернулся клиенту
